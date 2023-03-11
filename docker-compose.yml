@@ -1,0 +1,30 @@
+version: '3.4'
+
+services:
+  dotnet-takeoff-api:
+    image: ${DOCKER_REGISTRY-}dotnet-takeoff-api
+    build:
+      context: .
+      dockerfile: src/Services/DotnetTakeoff.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      SEQ_URL: http://seq:5341
+    ports:
+      - "5000:80"
+
+  seq:
+    container_name: seq
+    image: datalust/seq:latest
+    ports:
+      - "8081:80"
+      - "5341:5341"
+    environment:
+      - ACCEPT_EULA=Y
+    volumes:
+      - ./src/Services/DotnetTakeoff.Api/.seq:/data
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          memory: 2G
